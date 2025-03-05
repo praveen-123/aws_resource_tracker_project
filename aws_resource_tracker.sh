@@ -1,39 +1,34 @@
 #!/bin/bash
 
-# Set PATH (include AWS CLI path)
-export PATH="/usr/local/bin:/usr/bin:/bin"
+###################################################################
+# Author : Pravin Hiremath
+# Date : 05-03-2025
+#
+# This scripts reports the aws resource usage
+#
+# Version : V1 
+#
+# #################################################################
 
-# Set AWS credentials paths (modify if needed)
-export AWS_CONFIG_FILE="/home/ubuntu/.aws/config"
-export AWS_SHARED_CREDENTIALS_FILE="/home/ubuntu/.aws/credentials"
+set -x
 
-# Define AWS CLI full path
-AWS_CLI="/usr/local/bin/aws"
+#AWS EC2 instances
+#AWS S3 bucket
+#AWS lambda functions
+#AWS IAM users
 
-OUTPUT_FILE="/home/ubuntu/praveen/aws_resource_tracker_project/resourceTracker"
 
-{
-  echo "=============================="
-  echo "AWS Resource Tracker Log - $(date)"
-  echo "=============================="
+#list the AWS EC2 instances
+echo "print the aws ec2 instnaces"
+aws ec2 describe-instances | jq '.Reservations[].Instances[].InstanceId' > resourceTracker
 
-  echo "AWS EC2 Instances:"
-  $AWS_CLI ec2 describe-instances --query "Reservations[*].Instances[*].InstanceId" --output json || echo "Error fetching EC2 instances"
-  echo -e "\n"
+#list the AWS S3 bucket
+echo "print the aws s3 bucket"
+aws s3 ls > resourceTracker
 
-  echo "AWS S3 Buckets:"
-  $AWS_CLI s3 ls || echo "Error fetching S3 buckets"
-  echo -e "\n"
+#list the AWS Lambda functions
+echo "print the aws lambda functions"
+aws lambda list-functions > resourceTracker
 
-  echo "AWS Lambda Functions:"
-  $AWS_CLI lambda list-functions --query "Functions[*].FunctionName" --output json || echo "Error fetching Lambda functions"
-  echo -e "\n"
-
-  echo "AWS IAM Users:"
-  $AWS_CLI iam list-users --query "Users[*].UserName" --output json || echo "Error fetching IAM users"
-  echo -e "\n"
-
-  echo "AWS Resource tracking completed at $(date)"
-  echo "-------------------------------------------"
-} >> "$OUTPUT_FILE" 2>&1
-
+#list the AWS IAM users
+aws iam list-users > resourceTracker
